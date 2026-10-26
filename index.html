@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NEON TRADELAB PRO — Paper Trading</title>
+<style>
+:root{--bg:#0b0e14;--panel:#121722;--panel2:#191f2b;--border:#293244;--text:#e4e9f2;--muted:#8d9aaf;--green:#16c784;--red:#ea3943;--blue:#4da3ff;--yellow:#f0b90b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px Consolas,Monaco,monospace}
+header{display:flex;align-items:center;gap:14px;padding:16px 22px;background:#080b10;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.logo{font-size:25px;font-weight:bold;color:var(--green)}.brand{font-size:19px;font-weight:bold}.sub{color:var(--green);font-size:11px}.status{margin-left:auto;color:var(--yellow);font-size:12px}
+.notice{padding:8px 16px;color:var(--muted);font-size:11px;border-bottom:1px solid var(--border)}
+main{max-width:1500px;margin:auto;padding:14px}.summary{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:10px;margin-bottom:12px}
+.card,.panel{background:var(--panel);border:1px solid var(--border);border-radius:7px;min-width:0}.card{padding:12px}.label{font-size:10px;color:var(--muted);margin-bottom:8px}.value{font-size:clamp(16px,2vw,22px);font-weight:bold;overflow-wrap:anywhere}.green{color:var(--green)}.red{color:var(--red)}.blue{color:var(--blue)}
+.layout{display:grid;grid-template-columns:minmax(290px,380px) minmax(0,1fr);gap:12px}.panel{padding:12px;margin-bottom:12px}.ptitle{color:var(--green);font-size:12px;font-weight:bold;margin-bottom:10px}
+table{border-collapse:collapse;width:100%;font-size:12px}th{text-align:left;color:var(--green);background:var(--panel2);font-size:10px;padding:9px 7px}td{padding:9px 7px;border-bottom:1px solid #222b3a;white-space:nowrap}tr.stock{cursor:pointer}tr.stock:hover,tr.stock.selected{background:#203047}button{font: bold 12px Consolas,monospace;border:0;border-radius:4px;padding:10px 12px;cursor:pointer;background:var(--green);color:#08110e}button:hover{filter:brightness(1.08)}button.secondary{background:var(--blue);color:#08111c}button.sell{background:var(--red);color:white}button.ghost{background:var(--panel2);color:var(--text);border:1px solid var(--border)}
+.watchbtn{width:100%;margin-top:10px}.orderline{display:flex;justify-content:space-between;gap:10px;margin:10px 0}.symbol{font-size:18px;font-weight:bold;color:var(--green)}input{width:95px;padding:9px;background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:4px;font:14px Consolas,monospace} .tradebuttons{display:flex;gap:8px}.tradebuttons button{flex:1}
+canvas{display:block;width:100%;height:260px}.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}.tabs button{background:var(--panel2);color:var(--text);border:1px solid var(--border)}.tabs button.active{color:var(--green);border-color:var(--green)}.tabcontent{display:none;overflow:auto}.tabcontent.active{display:block}.empty{color:var(--muted);padding:18px;text-align:center}.footer{text-align:center;color:var(--muted);font-size:10px;padding:12px}
+@media(max-width:850px){.layout{grid-template-columns:1fr}.summary{grid-template-columns:repeat(2,minmax(0,1fr))}.status{margin-left:0;width:100%}header{gap:9px}canvas{height:230px}}
+@media(max-width:450px){main{padding:8px}.summary{gap:6px}.card{padding:9px}.value{font-size:15px}td,th{padding:7px 5px;font-size:10px}}
+</style>
+</head>
+<body>
+<header><div class="logo">N</div><div><div class="brand">NEON TRADELAB</div><div class="sub">PRO / PAPER TRADING</div></div><div class="status">● OFFLINE SIMULATION</div></header>
+<div class="notice">SIMULATED PRICES ONLY • VIRTUAL MONEY • NOT FINANCIAL ADVICE • DATA SAVES IN THIS BROWSER</div>
+<main>
+<section class="summary">
+ <div class="card"><div class="label">AVAILABLE CASH</div><div id="cash" class="value green">₹1,00,000.00</div></div>
+ <div class="card"><div class="label">PORTFOLIO VALUE</div><div id="portvalue" class="value blue">₹0.00</div></div>
+ <div class="card"><div class="label">UNREALISED P&L</div><div id="pnl" class="value green">₹0.00</div></div>
+ <div class="card"><div class="label">TOTAL EQUITY</div><div id="equity" class="value">₹1,00,000.00</div></div>
+</section>
+<div class="layout">
+ <aside>
+  <section class="panel"><div class="ptitle">MARKET WATCH / SIMULATED</div><div style="overflow:auto;max-height:350px"><table><thead><tr><th>SYMBOL</th><th>PRICE</th><th>CHANGE</th></tr></thead><tbody id="market"></tbody></table></div><button id="watchToggle" class="secondary watchbtn">☆ ADD TO WATCHLIST</button></section>
+  <section class="panel"><div class="ptitle">ORDER TICKET</div><div id="orderSymbol" class="symbol">RELIANCE</div><div id="orderPrice" style="color:var(--muted);margin-top:5px">Simulated price: ₹1,450.00</div><div class="orderline"><label for="qty">QUANTITY</label><input id="qty" type="number" min="1" step="1" value="1"></div><div id="orderTotal" style="font-weight:bold;margin:12px 0">ORDER VALUE: ₹1,450.00</div><div class="tradebuttons"><button id="buy">BUY / LONG</button><button id="sell" class="sell">SELL</button></div></section>
+ </aside>
+ <section>
+  <section class="panel"><div class="ptitle">PRICE CHART / RECENT SIMULATION</div><div id="chartTitle" style="font-size:15px;font-weight:bold;margin-bottom:5px">RELIANCE</div><canvas id="chart"></canvas></section>
+  <section class="panel"><div class="tabs"><button class="active" data-tab="portfolio">PORTFOLIO</button><button data-tab="watchlist">WATCHLIST</button><button data-tab="history">TRADE HISTORY</button></div>
+   <div id="portfolio" class="tabcontent active"><table><thead><tr><th>SYMBOL</th><th>QTY</th><th>AVG COST</th><th>PRICE</th><th>VALUE</th><th>P&L</th></tr></thead><tbody id="portfolioRows"></tbody></table></div>
+   <div id="watchlist" class="tabcontent"><table><thead><tr><th>SYMBOL</th><th>COMPANY</th><th>PRICE</th><th>CHANGE</th></tr></thead><tbody id="watchRows"></tbody></table></div>
+   <div id="history" class="tabcontent"><table><thead><tr><th>TIME</th><th>SIDE</th><th>SYMBOL</th><th>QTY</th><th>PRICE</th><th>TOTAL</th></tr></thead><tbody id="historyRows"></tbody></table></div>
+  </section>
+ </section>
+</div>
+<div class="footer">NEON TECHNOLOGIES • EDUCATIONAL PAPER-TRADING SIMULATOR • NOT LIVE MARKET DATA</div>
+</main>
+<script>
+const START=100000, defaults={
+ RELIANCE:{name:"Reliance Industries",price:1450},TCS:{name:"Tata Consultancy Services",price:3200},
+ INFY:{name:"Infosys",price:1500},HDFCBANK:{name:"HDFC Bank",price:1700},ITC:{name:"ITC Limited",price:430},
+ SBIN:{name:"State Bank of India",price:800},WIPRO:{name:"Wipro Limited",price:300},TATAMOTORS:{name:"Tata Motors",price:700}
+};
+const fmt=n=>"₹"+Number(n).toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2});
+let stocks={},cash=START,positions={},history=[],watchlist=Object.keys(defaults),selected="RELIANCE";
+function freshStocks(){for(const [s,v] of Object.entries(defaults))stocks[s]={...v,previous:v.price,history:Array(30).fill(v.price)}}
+function save(){try{localStorage.setItem("neon_tradelab_web_v1",JSON.stringify({cash,positions,history:history.slice(-500),watchlist,prices:Object.fromEntries(Object.entries(stocks).map(([s,v])=>[s,v.price]))}))}catch(e){}}
+function load(){freshStocks();try{let d=JSON.parse(localStorage.getItem("neon_tradelab_web_v1")||"null");if(d){cash=Number(d.cash??START);positions=d.positions||{};history=d.history||[];watchlist=(d.watchlist||watchlist).filter(s=>stocks[s]);for(const [s,p] of Object.entries(d.prices||{})){if(stocks[s]&&Number(p)>0){stocks[s].price=Number(p);stocks[s].previous=Number(p);stocks[s].history=Array(30).fill(Number(p))}}}}catch(e){}}
+const $=id=>document.getElementById(id);
+function pct(s){let x=stocks[s];return x.previous?(x.price/x.previous-1)*100:0}
+function signed(n){return (n>=0?"+":"")+n.toFixed(2)+"%"}
+function portfolioTotals(){let value=0,cost=0;for(const [s,p] of Object.entries(positions)){if(stocks[s]){value+=p.qty*stocks[s].price;cost+=p.qty*p.avg}}return [value,value-cost]}
+function setEmpty(tbody,n,cols){tbody.innerHTML=`<tr><td colspan="${cols}" class="empty">${n}</td></tr>`}
+function render(){let [pv,pnl]=portfolioTotals();$("cash").textContent=fmt(cash);$("portvalue").textContent=fmt(pv);$("pnl").textContent=fmt(pnl);$("pnl").className="value "+(pnl>=0?"green":"red");$("equity").textContent=fmt(cash+pv);
+ $("market").innerHTML=Object.keys(stocks).map(s=>`<tr class="stock ${s===selected?"selected":""}" data-symbol="${s}"><td>${s}</td><td>${fmt(stocks[s].price)}</td><td class="${pct(s)>=0?"green":"red"}">${signed(pct(s))}</td></tr>`).join("");
+ $("watchToggle").textContent=watchlist.includes(selected)?"★ REMOVE FROM WATCHLIST":"☆ ADD TO WATCHLIST";
+ $("orderSymbol").textContent=selected;$("chartTitle").textContent=selected;$("orderPrice").textContent="Simulated price: "+fmt(stocks[selected].price);updateTotal();
+ const ps=Object.entries(positions).filter(([s,p])=>p.qty>0);$("portfolioRows").innerHTML=ps.map(([s,p])=>`<tr><td>${s}</td><td>${p.qty}</td><td>${fmt(p.avg)}</td><td>${fmt(stocks[s].price)}</td><td>${fmt(p.qty*stocks[s].price)}</td><td class="${stocks[s].price>=p.avg?"green":"red"}">${fmt(p.qty*(stocks[s].price-p.avg))}</td></tr>`).join("")||`<tr><td colspan="6" class="empty">No holdings yet — place a simulated buy order.</td></tr>`;
+ $("watchRows").innerHTML=watchlist.map(s=>`<tr><td>${s}</td><td>${stocks[s].name}</td><td>${fmt(stocks[s].price)}</td><td class="${pct(s)>=0?"green":"red"}">${signed(pct(s))}</td></tr>`).join("")||`<tr><td colspan="4" class="empty">Watchlist is empty.</td></tr>`;
+ $("historyRows").innerHTML=[...history].reverse().map(t=>`<tr><td>${t.time}</td><td class="${t.side==="BUY"?"green":"red"}">${t.side}</td><td>${t.symbol}</td><td>${t.qty}</td><td>${fmt(t.price)}</td><td>${fmt(t.total)}</td></tr>`).join("")||`<tr><td colspan="6" class="empty">No trades yet.</td></tr>`;
+ drawChart();
+}
+function updateTotal(){const n=Math.floor(Number($("qty").value));$("orderTotal").textContent="ORDER VALUE: "+fmt((Number.isFinite(n)&&n>0?n:0)*stocks[selected].price)}
+function drawChart(){let c=$("chart"),r=c.getBoundingClientRect(),dpr=window.devicePixelRatio||1;c.width=Math.max(300,r.width*dpr);c.height=260*dpr;let ctx=c.getContext("2d");ctx.scale(dpr,dpr);let w=c.width/dpr,h=260,prices=stocks[selected].history,pad={l:66,r:12,t:14,b:24},cw=w-pad.l-pad.r,ch=h-pad.t-pad.b,lo=Math.min(...prices),hi=Math.max(...prices);if(hi===lo){hi+=Math.max(1,hi*.01);lo-=Math.max(1,lo*.01)}ctx.clearRect(0,0,w,h);ctx.font="10px Consolas";for(let i=0;i<5;i++){let y=pad.t+i*ch/4,v=hi-i*(hi-lo)/4;ctx.strokeStyle="#293244";ctx.setLineDash([3,4]);ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle="#8d9aaf";ctx.fillText(v.toFixed(2),4,y+3)}ctx.beginPath();prices.forEach((p,i)=>{let x=pad.l+i*cw/(prices.length-1),y=pad.t+(hi-p)/(hi-lo)*ch;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.strokeStyle=prices.at(-1)>=prices[0]?"#16c784":"#ea3943";ctx.lineWidth=2;ctx.stroke();ctx.fillStyle="#8d9aaf";ctx.fillText("OLDER",pad.l,h-6);ctx.fillText("LATEST",w-55,h-6)}
+$("market").addEventListener("click",e=>{let tr=e.target.closest("tr[data-symbol]");if(tr){selected=tr.dataset.symbol;render()}});
+$("watchToggle").addEventListener("click",()=>{if(watchlist.includes(selected))watchlist=watchlist.filter(s=>s!==selected);else watchlist.push(selected);save();render()});
+$("qty").addEventListener("input",updateTotal);window.addEventListener("resize",drawChart);
+$("buy").addEventListener("click",()=>{let qty=Number($("qty").value);if(!Number.isInteger(qty)||qty<=0){alert("Enter a whole-number quantity greater than zero.");return}let price=stocks[selected].price,total=qty*price;if(total>cash){alert("Insufficient virtual cash. Required: "+fmt(total)+" | Available: "+fmt(cash));return}let old=positions[selected]||{qty:0,avg:0},newQty=old.qty+qty;positions[selected]={qty:newQty,avg:(old.qty*old.avg+qty*price)/newQty};cash-=total;record("BUY",qty,price);save();render();alert("Simulated BUY completed: "+qty+" "+selected+" for "+fmt(total))});
+$("sell").addEventListener("click",()=>{let qty=Number($("qty").value),p=positions[selected];if(!Number.isInteger(qty)||qty<=0){alert("Enter a whole-number quantity greater than zero.");return}if(!p||p.qty<qty){alert("Not enough shares. You own "+(p?p.qty:0)+" "+selected+".");return}let price=stocks[selected].price,total=qty*price;p.qty-=qty;if(!p.qty)delete positions[selected];cash+=total;record("SELL",qty,price);save();render();alert("Simulated SELL completed: "+qty+" "+selected+" for "+fmt(total))});
+function record(side,qty,price){history.push({time:new Date().toLocaleString(),side,symbol:selected,qty,price,total:qty*price});history=history.slice(-500)}
+document.querySelectorAll(".tabs button").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("active",x===b));document.querySelectorAll(".tabcontent").forEach(x=>x.classList.toggle("active",x.id===b.dataset.tab))}));
+load();render();setInterval(()=>{for(const s of Object.keys(stocks)){let x=stocks[s];x.previous=x.price;x.price=Math.max(1,Math.round(x.price*(1+(Math.random()-.5)*.016)*100)/100);x.history.push(x.price);x.history=x.history.slice(-60)}render();save()},2000);
+</script>
+</body>
+</html>
